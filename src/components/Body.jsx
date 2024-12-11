@@ -1,60 +1,17 @@
-// import RestaurantCard from "./RestaurantCard";
-// // import resList from "../utils/mockData";
-// import { useEffect, useState } from "react";
-
-// const Body = () => {
-
-//     // state variable
-//     const [ListOfRestaurants, setListOfRestaurants] = useState([]);
-
-//     useEffect(()=>{
-//         fetchData();
-//     }, []);
-
-//     const fetchData = async () => {
-//         const data = await fetch("https://www.swiggy.com/dapi/restaurants/list/v5?lat=28.6312471&lng=77.4372084&collection=80382&tags=layout_CCS_CholeBhature&sortBy=&filters=&type=rcv2&offset=0&page_type=null");
-//         const json = await data.json();
-    
-//         console.log(json);
-    
-//         const restaurants = json?.data?.cards?.[3]?.card?.card?.restaurants || [];
-        
-//         setListOfRestaurants(restaurants);
-//     };
-    
-
-
-//     const restaurants = resList(); 
-
-//     return (
-//         <div className="body">
-//             <div className="filter">
-//                 <button className="filter-btn" onClick={()=>{
-//                     const filteredList = ListOfRestaurants.filter((res) => res.card.card.info.avgRatingString > 4);
-//                     setListOfRestaurants(filteredList);
-//                     // console.log("Button Clicked")
-//                 }}>Top Rated Restaurant</button>
-//             </div>
-//             <div className="res-container">
-//             {
-//                 ListOfRestaurants.map(rest => <RestaurantCard key={rest.card.card.info.id} resData={rest.card.card.info} />)
-//             }
-             
-//             </div>
-//         </div>
-//     );
-// };
-
-// export default Body;
-
-
 import RestaurantCard from "./RestaurantCard";
-// import resList from "../utils/mockData";
 import { useEffect, useState } from "react";
+import Shimmer from "./Shimmer";
+import { Link } from "react-router-dom";
+import useOnlineStatus from "./useOnlineStatus";
 
 const Body = () => {
   // state variable
   const [ListOfRestaurants, setListOfRestaurants] = useState([]);
+  const [filteredRestaurants, setfilteredRestaurants] = useState([]);
+
+  const [searchText, setsearchText] = useState("");
+
+  // const data = useRestaurantMenu();
 
   useEffect(() => {
     fetchData();
@@ -72,15 +29,30 @@ const Body = () => {
         ?.restaurants || [];
 
     setListOfRestaurants(restaurants);
+    setfilteredRestaurants(restaurants);
     console.log(restaurants);
   };
 
-  // const restaurants = resList();
+  const onlineStatus = useOnlineStatus();
+  if(onlineStatus===false) return <h1>Looks like you are offline!</h1>;;
 
-  return (
-    <div className="body">
-      <div className="filter">
-        <button
+
+  return ListOfRestaurants.length===0 ? <Shimmer/> : (
+    <div className="body px-10">
+      <div className="filter flex items-center py-2">
+      <div className="search m-4 p-4"><input type="text" className="search-box border border-solid border-black p-1 w-[400px]" value={searchText} 
+        onChange={(e)=>{
+            setsearchText(e.target.value);
+        }}
+      />
+      <button className="px-4 py-1 bg-green-100 m-2 rounded-lg cursor-pointer text-xl font-bold"
+      onClick={()=>{
+        console.log(searchText);
+        const filteredRestaurants = ListOfRestaurants.filter((res)=>res.info.name.toLowerCase().includes(searchText.toLowerCase()));
+        setfilteredRestaurants(filteredRestaurants);
+      }}>Search</button></div>
+      <div className="search px-4 py-1 bg-green-100 rounded-lg cursor-pointer text-xl font-bold">
+      <button
           className="filter-btn"
           onClick={() => {
             const filteredList = ListOfRestaurants.filter(
@@ -92,9 +64,10 @@ const Body = () => {
           Top Rated Restaurant
         </button>
       </div>
-      <div className="res-container">
-        {ListOfRestaurants.map((rest) => (
-          <RestaurantCard key={rest.info.id} resData={rest.info} />
+      </div>
+      <div className="flex flex-wrap">
+        {filteredRestaurants.map((rest) => (
+          <Link key={rest.info.id} to={"/restaurants/" + rest.info.id}><RestaurantCard resData={rest.info} /></Link>
         ))}
       </div>
     </div>
