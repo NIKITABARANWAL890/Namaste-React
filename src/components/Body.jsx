@@ -19,7 +19,7 @@ const Body = () => {
 
   const fetchData = async () => {
     const data = await fetch(
-      "https://www.swiggy.com/dapi/restaurants/list/v5?lat=15.8736274&lng=74.48003829999999&is-seo-homepage-enabled=true&page_type=DESKTOP_WEB_LISTING"
+      "https://www.swiggy.com/dapi/restaurants/list/v5?lat=28.6294093&lng=77.4329048&is-seo-homepage-enabled=true&page_type=DESKTOP_WEB_LISTING"
     );
     const json = await data.json();
 
@@ -28,13 +28,15 @@ const Body = () => {
       json?.data?.cards[4]?.card?.card?.gridElements?.infoWithStyle
         ?.restaurants || [];
 
+    console.log(restaurants);
+
     setListOfRestaurants(restaurants);
     setfilteredRestaurants(restaurants);
     console.log(restaurants);
   };
 
   const onlineStatus = useOnlineStatus();
-  if(onlineStatus===false) return <h1>Looks like you are offline!</h1>;;
+  if(onlineStatus===false) return <h1>Looks like you are offline!</h1>;
 
 
   return ListOfRestaurants.length===0 ? <Shimmer/> : (
